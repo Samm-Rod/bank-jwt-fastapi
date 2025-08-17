@@ -1,0 +1,47 @@
+#docker-compose.yml - Orquestra múltiplos containers
+
+# Versão do formato do docker-compose
+version: '3.8'
+
+# Define todos os containers (serviços) da aplicação
+services:
+
+  # Serviço da aplicação Python
+  app: 
+
+    # build = usa imagem local do Dockerfile
+    # image = usa imagem pronta no DockerHub
+    # Como construir a imagem (usa o Dockerfile local)
+    build: .
+
+    # Pega da env 
+    env_file:
+      - .env 
+
+    # Nome do container
+    container_name: bank_app
+
+    # Mapeamento de portas: HOST:CONTAINER
+    ports: 
+      - "8000:8000" # Acesso via localhost:8000
+
+    # Volumes para persistir dados e códigos 
+    volumes:
+      # Persiste banco SQLite no host
+      - ./data:/app/data
+      # Para development: monta código em tempo real 
+      - .:/app 
+
+    # Variáveis de ambiente para o container
+    environment:
+      - DATABASE_PATH=${DATABASE_PATH}
+      - DATABASE_URL=${DATABASE_URL}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+
